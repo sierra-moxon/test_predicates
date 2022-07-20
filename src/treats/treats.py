@@ -140,5 +140,5 @@ def run_it():
             for association in ep.get('assocs'):
                 trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
                 print(trapi)
-                submit_trapi(trapi, test_association.get("ep"))
+                submit_trapi(trapi, test_association)
 
