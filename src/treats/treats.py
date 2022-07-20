@@ -12,7 +12,7 @@ sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/
 
 def submit_trapi(trapi, api_endpoint):
     print("submitting trapi")
-    print(trapi)
+    pprint(trapi)
     print(api_endpoint)
     response = requests.post(api_endpoint, json=trapi)
     print(response.status_code)
@@ -81,15 +81,15 @@ def make_trapi(
 ):
     query_graph = {
         "nodes": {
-            'a': {
+            "a": {
                 "category": "biolink:"+subject_category
             },
-            'b': {
+            "b": {
                 "category": "biolink:"+object_category
             }
         },
         "edges": {
-            'ab': {
+            "ab": {
                 "subject": "a",
                 "object": "b",
                 "predicate": "biolink:"+predicate
