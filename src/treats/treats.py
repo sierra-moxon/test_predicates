@@ -1,5 +1,5 @@
 from typing import List
-
+import json
 import requests
 from pprint import pprint
 import re
@@ -12,9 +12,8 @@ sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/
 
 def submit_trapi(trapi, api_endpoint):
     print("submitting trapi")
-    pprint(trapi)
-    print(api_endpoint)
-    response = requests.post(api_endpoint, json=trapi)
+    trapi_json = json.dumps(trapi, indent=4)
+    response = requests.post(api_endpoint, json=trapi_json)
     print(response.status_code)
 
 
@@ -26,7 +25,7 @@ def fetch_treats_examples():
     endpoints_to_query = []
     for association in metakg:
         # lots of kps don't have an x-trapi, so I can't get the apis from just KPs.
-        #if "x-trapi" in association:
+        # if "x-trapi" in association:
         if association.get('api').get('x-translator').get('component') == 'KP':
             if association.get('predicate') in ["treats", "ameliorates", "approved_to_treat"]:
                 assoc = {
@@ -37,7 +36,8 @@ def fetch_treats_examples():
                     "api_name": association.get("api").get("name"),
                     "api_id": association.get("api").get("smartapi").get("id")
                 }
-                ep = "https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1"
+                ep = "https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get(
+                    "id") + "?raw=1"
                 if ep not in unique_endpoints:
                     unique_endpoints.append(ep)
                     epq = {
@@ -53,7 +53,7 @@ def fetch_treats_examples():
 
                 metakg_small.append(assoc)
 
-    #pprint(endpoints_to_query)
+    # pprint(endpoints_to_query)
     return endpoints_to_query
 
 
@@ -82,17 +82,17 @@ def make_trapi(
     query_graph = {
         "nodes": {
             "a": {
-                "category": "biolink:"+subject_category
+                "category": "biolink:" + subject_category
             },
             "b": {
-                "category": "biolink:"+object_category
+                "category": "biolink:" + object_category
             }
         },
         "edges": {
             "ab": {
                 "subject": "a",
                 "object": "b",
-                "predicate": "biolink:"+predicate
+                "predicate": "biolink:" + predicate
             }
         }
     }
@@ -101,6 +101,7 @@ def make_trapi(
     if object_id is not None:
         query_graph['nodes']['b']['id'] = object_id
     message = {"message": {"query_graph": query_graph}}
+
     return message
 
 
@@ -138,7 +139,7 @@ def run_it():
     endpoints_to_query = fetch_treats_examples()
     for ep in endpoints_to_query:
         if is_trapi(ep):
-            test_association = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/query/"
+            test_association = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/"
             for association in ep.get('assocs'):
                 trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
                 if ep.get("api_id") == "03c1982f2e3ba3710da20aa9c01a00f6":
@@ -146,4 +147,3 @@ def run_it():
 
                 # slow
                 # submit_trapi(trapi, test_association)
-
