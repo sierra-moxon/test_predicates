@@ -44,13 +44,13 @@ def query_endpoint():
     unique_endpoints = []
     for row in rows:
         ep = "https://smart-api.info/api/metadata/" + row.get("api_id") + "?raw=1"
-        if ep not in unique_endpoints and row.get("api_id") != "1d288b3a3caf75d541ffaae3aab386c8":
+        if ep not in unique_endpoints:
             unique_endpoints.append(ep)
     for unique_endpoint in unique_endpoints:
         print(unique_endpoint)
-        #api_metadata = requests.get(unique_endpoint, timeout=5)
-        #if "x-trapi" in api_metadata.json().get("info"):
-        #        print("found some x-trapi")
+        api_metadata = requests.get(unique_endpoint, timeout=10)
+        if "x-trapi" in api_metadata.json().get("info"):
+                print("found some x-trapi")
                 #     results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
                 #     pprint(results.json()[0])
 
