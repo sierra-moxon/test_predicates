@@ -68,18 +68,14 @@ def get_id_prefixes():
         subject = "biolink:"+row.get('subject')
         element = tk.get_element(subject)
         id_prefixes = []
-        if element is not None and "id_prefixes" not in element:
+        if element is None:
+            print(subject + " isn't a valid biolink item?")
+        elif "id_prefixes" not in element:
             ancestors = tk.get_ancestors(element.name)
             for ancestor in ancestors:
                 if tk.get_element(ancestor).id_prefixes is not None:
                     id_prefixes = id_prefixes + tk.get_element(ancestor).id_prefixes
-                    break
-        else:
-            if element is None:
-                print(subject + " isn't a valid biolink item?")
-            else:
-                id_prefixes = element.id_prefixes
-        if len(id_prefixes) != 0:
+        elif len(element.id_prefixes) != 0:
             resource = id_prefixes[0]
             print(resource)
         else:

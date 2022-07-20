@@ -1,4 +1,4 @@
-from src.treats import testing_treats
+from src.treats import treats
 
 
 def test_treats():
