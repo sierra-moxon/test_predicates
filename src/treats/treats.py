@@ -15,6 +15,11 @@ conn = sqlite3.connect('test.db')
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
 
+def submit_to_endpoint(trapi, api_endpoint):
+    response = requests.post(api_endpoint, json=trapi)
+    print(response.json()[0])
+
+
 def fetch_treats_examples():
     engine = create_engine('sqlite://',
                            echo=False)
@@ -23,38 +28,50 @@ def fetch_treats_examples():
     metakg = r.json()['associations']
     metakg_small = []
     for association in metakg:
+        print("iterate thru metakg")
+        # lots of kps don't have an x-trapi, so I can't get the apis from just KPs.
+        #if "x-trapi" in association:
         if association.get('api').get('x-translator').get('component') == 'KP':
-            assoc = {
-                "subject": association.get('subject'),
-                "object": association.get('object'),
-                "predicate": association.get("predicate"),
-                "provided_by": association.get("provided_by"),
-                "api_name": association.get("api").get("name"),
-                "api_id": association.get("api").get("smartapi").get("id")
-            }
-            metakg_small.append(assoc)
+            if association.get('predicate') in ["treats", "ameliorates", "approved_to_treat"]:
+                assoc = {
+                    "subject": association.get('subject'),
+                    "object": association.get('object'),
+                    "predicate": association.get("predicate"),
+                    "provided_by": association.get("provided_by"),
+                    "api_name": association.get("api").get("name"),
+                    "api_id": association.get("api").get("smartapi").get("id")
+                }
+                metakg_small.append(assoc)
 
-    metakg_df = pd.DataFrame.from_dict(metakg_small)
-    engine.execute("drop table if exists metakg_table")
-    metakg_df.to_sql('metakg_table',
-                     con=engine)
+    # metakg_df = pd.DataFrame.from_dict(metakg_small)
+    # engine.execute("drop table if exists metakg_table")
+    # metakg_df.to_sql('metakg_table',
+    #                  con=engine)
+    #
+    # df = pd.read_sql(
+    #     'SELECT distinct subject, object, provided_by, predicate, api_name, '
+    #     'api_id from metakg_table where predicate = "ameliorates" or '
+    #     'predicate = "approved_to_treat" or predicate = "treats"',
+    #     engine)
+    # # write DataFrame to CSV file
+    # # df.to_csv('./metakg.csv', index=False)
+    # rows = df.to_dict('records')
 
-    df = pd.read_sql(
-        'SELECT distinct subject, object, provided_by, predicate, api_name, '
-        'api_id from metakg_table where predicate = "ameliorates" or '
-        'predicate = "approved_to_treat" or predicate = "treats"',
-        engine)
-    # write DataFrame to CSV file
-    # df.to_csv('metakg.csv', index=False)
-    rows = df.to_dict('records')
-    return rows
+    
+
+    return metakg_small
 
 
 def query_endpoint():
     rows = fetch_treats_examples()
     for row in rows:
+        api_metadata = requests.get("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
+        print(row.get('api_name'))
         trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
-        print(trapi)
+        pprint(trapi)
+        if "x-trapi" in api_metadata.json():
+            results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
+            pprint(results.json()[0])
 
 
 def make_trapi(
@@ -67,17 +84,17 @@ def make_trapi(
     query_graph = {
         "nodes": {
             'a': {
-                "category": subject_category
+                "category": "biolink:"+subject_category
             },
             'b': {
-                "category": object_category
+                "category": "biolink:"+object_category
             }
         },
         "edges": {
             'ab': {
                 "subject": "a",
                 "object": "b",
-                "predicate": predicate
+                "predicate": "biolink:"+predicate
             }
         }
     }
@@ -115,6 +132,5 @@ def get_id_prefixes():
                     id_prefixes = id_prefixes + sv.get_class(ancestor).id_prefixes
         elif len(element.id_prefixes) != 0 and element.id_prefixes is not None:
             resource = element.id_prefixes[0]
-            print(resource)
         else:
             print("id prefixes is empty for: " + subject)
