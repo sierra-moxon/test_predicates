@@ -14,4 +14,8 @@ def test_get_id_prefixes():
 
 
 def test_query_endpoint():
-    treats.query_endpoint()
+    treats.get_unique_metadata_endpoints()
+
+
+def test_run_it():
+    treats.run_it()

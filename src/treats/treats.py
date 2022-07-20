@@ -1,3 +1,5 @@
+from typing import List
+
 import requests
 from pprint import pprint
 import re
@@ -8,7 +10,7 @@ oi = UbergraphImplementation()
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
 
-def submit_to_endpoint(trapi, api_endpoint):
+def submit_trapi(trapi, api_endpoint):
     response = requests.post(api_endpoint, json=trapi)
     print(response.json()[0])
 
@@ -37,34 +39,34 @@ def fetch_treats_examples():
                     unique_endpoints.append(ep)
                     epq = {
                         "ep": ep,
-                        "assocs": [assoc]
+                        "assocs": [assoc],
+                        "api_id": association.get("api").get("smartapi").get("id")
                     }
                     endpoints_to_query.append(epq)
-
                 else:
                     for epqq in endpoints_to_query:
                         if epqq["ep"] == ep:
                             epqq["assocs"].append(assoc)
+
                 metakg_small.append(assoc)
 
+    #pprint(endpoints_to_query)
     return endpoints_to_query
 
 
-def query_endpoint():
+def is_trapi(ep: dict) -> bool:
+    response = requests.get(ep.get("ep"))
+    if "x-trapi" in response.json().get("info"):
+        return True
+
+
+def get_unique_metadata_endpoints():
     rows = fetch_treats_examples()
     unique_endpoints = []
     for row in rows:
         ep = "https://smart-api.info/api/metadata/" + row.get("api_id") + "?raw=1"
         if ep not in unique_endpoints:
             unique_endpoints.append(ep)
-
-
-        # api_metadata = requests.get(unique_endpoint, timeout=10)
-        # if "x-trapi" in api_metadata.json().get("info"):
-        #         print("found some x-trapi")
-        #         trapi = make_trapi(row.get('subject'), row.get('object'), association.get('predicate'))
-        #         results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
-        #         pprint(results.json()[0])
 
 
 def make_trapi(
@@ -127,3 +129,18 @@ def get_id_prefixes():
             resource = element.id_prefixes[0]
         else:
             print("id prefixes is empty for: " + subject)
+
+
+def run_it():
+    endpoints_to_query = fetch_treats_examples()
+    for ep in endpoints_to_query:
+        if is_trapi(ep):
+            trapi_endpoint = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/query"
+            print(trapi_endpoint)
+
+    for trapi_endpoint in endpoints_to_query:
+        for association in trapi_endpoint.get('assocs'):
+            trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
+            print(trapi)
+            #submit_trapi(trapi, trapi_endpoint.get("ep"))
+
