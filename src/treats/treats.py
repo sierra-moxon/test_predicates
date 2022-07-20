@@ -1,17 +1,12 @@
-import json
-import pandas as pd
 import requests
-import csv
 from pprint import pprint
 import sqlite3
 import re
 from linkml_runtime import SchemaView
-from linkml_runtime.utils import formatutils
 from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphImplementation
 from sqlalchemy import create_engine
 
 oi = UbergraphImplementation()
-conn = sqlite3.connect('test.db')
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
 
@@ -21,9 +16,6 @@ def submit_to_endpoint(trapi, api_endpoint):
 
 
 def fetch_treats_examples():
-    engine = create_engine('sqlite://',
-                           echo=False)
-
     r = requests.get('https://smart-api.info/api/metakg')
     metakg = r.json()['associations']
     metakg_small = []
@@ -39,27 +31,14 @@ def fetch_treats_examples():
                     "predicate": association.get("predicate"),
                     "provided_by": association.get("provided_by"),
                     "api_name": association.get("api").get("name"),
-                    "api_id": association.get("api").get("smartapi").get("id")
+                    "api_id": association.get("api").get("smartapi").get("id"),
+                    "id": association.get('subject')+association.get('object')+association.get("predicate")+association.get("api").get("smartapi").get("id")
                 }
                 metakg_small.append(assoc)
 
-    # metakg_df = pd.DataFrame.from_dict(metakg_small)
-    # engine.execute("drop table if exists metakg_table")
-    # metakg_df.to_sql('metakg_table',
-    #                  con=engine)
-    #
-    # df = pd.read_sql(
-    #     'SELECT distinct subject, object, provided_by, predicate, api_name, '
-    #     'api_id from metakg_table where predicate = "ameliorates" or '
-    #     'predicate = "approved_to_treat" or predicate = "treats"',
-    #     engine)
-    # # write DataFrame to CSV file
-    # # df.to_csv('./metakg.csv', index=False)
-    # rows = df.to_dict('records')
+    uniques = list({v['id']: v for v in metakg_small}.values())
 
-    
-
-    return metakg_small
+    return uniques
 
 
 def query_endpoint():
