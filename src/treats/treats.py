@@ -11,8 +11,11 @@ sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/
 
 
 def submit_trapi(trapi, api_endpoint):
+    print("submitting trapi")
+    print(trapi)
+    print(api_endpoint)
     response = requests.post(api_endpoint, json=trapi)
-    pprint(response.json())
+    print(response.status_code)
 
 
 def fetch_treats_examples():
@@ -136,9 +139,11 @@ def run_it():
     for ep in endpoints_to_query:
         if is_trapi(ep):
             test_association = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/query/"
-            print(test_association)
             for association in ep.get('assocs'):
                 trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
-                print(trapi)
-                submit_trapi(trapi, test_association)
+                if ep.get("api_id") == "03c1982f2e3ba3710da20aa9c01a00f6":
+                    submit_trapi(trapi, test_association)
+
+                # slow
+                # submit_trapi(trapi, test_association)
 
