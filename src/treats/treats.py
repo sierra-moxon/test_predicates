@@ -1,3 +1,5 @@
+from typing import List
+
 import requests
 from pprint import pprint
 import re
@@ -30,28 +32,26 @@ def fetch_treats_examples():
                     "api_id": association.get("api").get("smartapi").get("id"),
                     "id": association.get('subject')+association.get('object')+association.get("predicate")+association.get("api").get("smartapi").get("id")
                 }
-                metakg_small.append(assoc)
 
-    for row in metakg_small:
-        trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
-        pprint(trapi)
-        print("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
+                trapi = make_trapi(association.get('subject'), association.get('object'), association.get('predicate'))
+                pprint(trapi)
+                #results = query_endpoint("https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1",
+                #                         association.get('api_name'))
+
+                print("https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1")
+                #pprint(results.json())
+                metakg_small.append(assoc)
 
     return metakg_small
 
 
-def query_endpoint():
-    rows = fetch_treats_examples()
-    for row in rows:
-        api_metadata = requests.get("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
-        trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
-        pprint(trapi)
-        if "x-trapi" in api_metadata.json():
-            print("found some x-trapi")
-            print(row.get('api_name'))
+def query_endpoint(api_endpoint: str, api_name: str):
+    api_metadata = requests.get(api_endpoint)
+    if "x-trapi" in api_metadata.json().get("info"):
+        print("found some x-trapi")
         #     results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
         #     pprint(results.json()[0])
-
+    return api_metadata
 
 def make_trapi(
         subject_category: str,
