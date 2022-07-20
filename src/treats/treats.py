@@ -7,7 +7,6 @@ from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphI
 oi = UbergraphImplementation()
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
-
 def submit_to_endpoint(trapi, api_endpoint):
     response = requests.post(api_endpoint, json=trapi)
     print(response.json()[0])
@@ -18,7 +17,6 @@ def fetch_treats_examples():
     metakg = r.json()['associations']
     metakg_small = []
     for association in metakg:
-        print("iterate thru metakg")
         # lots of kps don't have an x-trapi, so I can't get the apis from just KPs.
         #if "x-trapi" in association:
         if association.get('api').get('x-translator').get('component') == 'KP':
@@ -34,13 +32,12 @@ def fetch_treats_examples():
                 }
                 metakg_small.append(assoc)
 
-    uniques = list({v['id']: v for v in metakg_small}.values())
-    for row in uniques:
+    for row in metakg_small:
         trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
         pprint(trapi)
         print("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
 
-    return uniques
+    return metakg_small
 
 
 def query_endpoint():
