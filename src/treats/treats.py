@@ -12,7 +12,7 @@ sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/
 
 def submit_trapi(trapi, api_endpoint):
     response = requests.post(api_endpoint, json=trapi)
-    print(response.json()[0])
+    pprint(response.json())
 
 
 def fetch_treats_examples():
@@ -97,7 +97,7 @@ def make_trapi(
         query_graph['nodes']['a']['id'] = subject_id
     if object_id is not None:
         query_graph['nodes']['b']['id'] = object_id
-    message = {"message": {"query_graph": query_graph}, 'knowledge_graph': {"nodes": [], "edges": [], }, 'results': []}
+    message = {"message": {"query_graph": query_graph}}
     return message
 
 
@@ -135,12 +135,10 @@ def run_it():
     endpoints_to_query = fetch_treats_examples()
     for ep in endpoints_to_query:
         if is_trapi(ep):
-            trapi_endpoint = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/query"
-            print(trapi_endpoint)
-
-    for trapi_endpoint in endpoints_to_query:
-        for association in trapi_endpoint.get('assocs'):
-            trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
-            print(trapi)
-            #submit_trapi(trapi, trapi_endpoint.get("ep"))
+            test_association = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/query/"
+            print(test_association)
+            for association in ep.get('assocs'):
+                trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
+                print(trapi)
+                submit_trapi(trapi, test_association.get("ep"))
 
