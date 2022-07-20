@@ -1,10 +1,8 @@
 import requests
 from pprint import pprint
-import sqlite3
 import re
 from linkml_runtime import SchemaView
 from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphImplementation
-from sqlalchemy import create_engine
 
 oi = UbergraphImplementation()
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
@@ -45,12 +43,13 @@ def query_endpoint():
     rows = fetch_treats_examples()
     for row in rows:
         api_metadata = requests.get("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
-        print(row.get('api_name'))
         trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
         pprint(trapi)
         if "x-trapi" in api_metadata.json():
-            results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
-            pprint(results.json()[0])
+            print("found some x-trapi")
+            print(row.get('api_name'))
+        #     results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
+        #     pprint(results.json()[0])
 
 
 def make_trapi(
