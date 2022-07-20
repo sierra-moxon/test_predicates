@@ -42,6 +42,7 @@ def fetch_treats_examples():
 def query_endpoint():
     rows = fetch_treats_examples()
     for row in rows:
+        pprint(row)
         api_metadata = requests.get("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
         trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
         pprint(trapi)
