@@ -35,10 +35,11 @@ def fetch_treats_examples():
 
                 trapi = make_trapi(association.get('subject'), association.get('object'), association.get('predicate'))
                 pprint(trapi)
-                #results = query_endpoint("https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1",
-                #                         association.get('api_name'))
+                results = query_endpoint("https://smart-api.info/api/metadata/" +
+                                         association.get("api").get("smartapi").get("id") + "?raw=1",
+                                         association.get('api_name'))
 
-                print("https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1")
+                # print("https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1")
                 #pprint(results.json())
                 metakg_small.append(assoc)
 
