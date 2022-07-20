@@ -5,16 +5,17 @@ import csv
 from pprint import pprint
 import sqlite3
 from linkml_runtime import SchemaView
+from linkml_runtime.utils import formatutils
 from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphImplementation
 from sqlalchemy import create_engine
 
 
 oi = UbergraphImplementation()
 conn = sqlite3.connect('test.db')
-sv = SchemaView("https://github.com/biolink/biolink-model/blob/master/biolink-model.yaml")
+sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
+
 
 def run():
-
     engine = create_engine('sqlite://',
                            echo=False)
 
@@ -64,13 +65,14 @@ def make_trapi(subject: str, object: str, predicate: str):
 def get_id_prefixes():
     rows = run()
     for row in rows:
-        subject = "biolink:"+row.get('subject')
-        element = sv.get_class(subject)
+        subject = "biolink:"+formatutils.camelcase(row.get('subject'))
+        element = sv.get_class(row.get('subject'))
         id_prefixes = []
         if element is None:
+            print(row.get('subject'))
             print(subject + " isn't a valid biolink item?")
         elif "id_prefixes" not in element:
-            ancestors = sv.ancestors(element.name)
+            ancestors = sv.class_ancestors(element.name)
             for ancestor in ancestors:
                 if sv.get_class(ancestor).id_prefixes is not None:
                     id_prefixes = id_prefixes + sv.get_class(ancestor).id_prefixes
