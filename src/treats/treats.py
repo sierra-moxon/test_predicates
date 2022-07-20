@@ -35,6 +35,10 @@ def fetch_treats_examples():
                 metakg_small.append(assoc)
 
     uniques = list({v['id']: v for v in metakg_small}.values())
+    for row in uniques:
+        trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
+        pprint(trapi)
+        print("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
 
     return uniques
 
@@ -42,7 +46,6 @@ def fetch_treats_examples():
 def query_endpoint():
     rows = fetch_treats_examples()
     for row in rows:
-        pprint(row)
         api_metadata = requests.get("https://smart-api.info/api/metadata/"+row.get('api_id')+"?raw=1")
         trapi = make_trapi(row.get('subject'), row.get('object'), row.get('predicate'))
         pprint(trapi)
