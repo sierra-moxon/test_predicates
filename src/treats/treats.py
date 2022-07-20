@@ -4,15 +4,14 @@ import requests
 import csv
 from pprint import pprint
 import sqlite3
-import bmt
+from linkml_runtime import SchemaView
 from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphImplementation
 from sqlalchemy import create_engine
 
 
 oi = UbergraphImplementation()
 conn = sqlite3.connect('test.db')
-tk = bmt.Toolkit()
-
+sv = SchemaView("https://github.com/biolink/biolink-model/blob/master/biolink-model.yaml")
 
 def run():
 
@@ -66,15 +65,15 @@ def get_id_prefixes():
     rows = run()
     for row in rows:
         subject = "biolink:"+row.get('subject')
-        element = tk.get_element(subject)
+        element = sv.get_class(subject)
         id_prefixes = []
         if element is None:
             print(subject + " isn't a valid biolink item?")
         elif "id_prefixes" not in element:
-            ancestors = tk.get_ancestors(element.name)
+            ancestors = sv.ancestors(element.name)
             for ancestor in ancestors:
-                if tk.get_element(ancestor).id_prefixes is not None:
-                    id_prefixes = id_prefixes + tk.get_element(ancestor).id_prefixes
+                if sv.get_class(ancestor).id_prefixes is not None:
+                    id_prefixes = id_prefixes + sv.get_class(ancestor).id_prefixes
         elif len(element.id_prefixes) != 0:
             resource = id_prefixes[0]
             print(resource)
