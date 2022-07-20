@@ -1,5 +1,3 @@
-from typing import List
-
 import requests
 from pprint import pprint
 import re
@@ -18,6 +16,8 @@ def fetch_treats_examples():
     r = requests.get('https://smart-api.info/api/metakg')
     metakg = r.json()['associations']
     metakg_small = []
+    unique_endpoints = []
+    endpoints_to_query = []
     for association in metakg:
         # lots of kps don't have an x-trapi, so I can't get the apis from just KPs.
         #if "x-trapi" in association:
@@ -31,10 +31,20 @@ def fetch_treats_examples():
                     "api_name": association.get("api").get("name"),
                     "api_id": association.get("api").get("smartapi").get("id")
                 }
-
-                # trapi = make_trapi(association.get('subject'), association.get('object'), association.get('predicate'))
-
+                ep = "https://smart-api.info/api/metadata/" + association.get("api").get("smartapi").get("id") + "?raw=1"
+                if ep not in unique_endpoints:
+                    unique_endpoints.append(ep)
+                    epq = {
+                        "ep": ep,
+                        "assocs": [assoc]
+                    }
+                    endpoints_to_query.append(epq)
+                else:
+                    for epqq in endpoints_to_query:
+                        if epqq["ep"] == ep:
+                            epqq["assocs"] = epqq["assocs"] + assoc
                 metakg_small.append(assoc)
+                pprint(endpoints_to_query)
 
     return metakg_small
 
@@ -46,13 +56,16 @@ def query_endpoint():
         ep = "https://smart-api.info/api/metadata/" + row.get("api_id") + "?raw=1"
         if ep not in unique_endpoints:
             unique_endpoints.append(ep)
-    for unique_endpoint in unique_endpoints:
-        print(unique_endpoint)
-        api_metadata = requests.get(unique_endpoint, timeout=10)
-        if "x-trapi" in api_metadata.json().get("info"):
-                print("found some x-trapi")
-                #     results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
-                #     pprint(results.json()[0])
+
+
+
+
+        # api_metadata = requests.get(unique_endpoint, timeout=10)
+        # if "x-trapi" in api_metadata.json().get("info"):
+        #         print("found some x-trapi")
+        #         trapi = make_trapi(row.get('subject'), row.get('object'), association.get('predicate'))
+        #         results = requests.post("https://smart-api.info/ui/"+row.get('api_id')+"/query/query", json=trapi)
+        #         pprint(results.json()[0])
 
 
 def make_trapi(
