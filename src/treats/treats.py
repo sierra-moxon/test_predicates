@@ -7,6 +7,7 @@ from oaklib.implementations.ubergraph.ubergraph_implementation import UbergraphI
 oi = UbergraphImplementation()
 sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/biolink-model.yaml")
 
+
 def submit_to_endpoint(trapi, api_endpoint):
     response = requests.post(api_endpoint, json=trapi)
     print(response.json()[0])
@@ -39,14 +40,14 @@ def fetch_treats_examples():
                         "assocs": [assoc]
                     }
                     endpoints_to_query.append(epq)
+
                 else:
                     for epqq in endpoints_to_query:
                         if epqq["ep"] == ep:
-                            epqq["assocs"] = epqq["assocs"] + assoc
+                            epqq["assocs"].append(assoc)
                 metakg_small.append(assoc)
-                pprint(endpoints_to_query)
 
-    return metakg_small
+    return endpoints_to_query
 
 
 def query_endpoint():
@@ -56,8 +57,6 @@ def query_endpoint():
         ep = "https://smart-api.info/api/metadata/" + row.get("api_id") + "?raw=1"
         if ep not in unique_endpoints:
             unique_endpoints.append(ep)
-
-
 
 
         # api_metadata = requests.get(unique_endpoint, timeout=10)
