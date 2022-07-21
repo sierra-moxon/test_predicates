@@ -11,11 +11,12 @@ sv = SchemaView("https://raw.githubusercontent.com/biolink/biolink-model/master/
 
 
 def submit_trapi(trapi, api_endpoint):
-    print("submitting trapi")
-    print(api_endpoint)
-    print(trapi)
     response = requests.post(api_endpoint, json=trapi)
-    print(response.json())
+    if response.status_code != 200:
+        print(response.json())
+        print(api_endpoint)
+    else:
+        print(response.json())
 
 
 def fetch_treats_examples():
