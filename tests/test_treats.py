@@ -20,9 +20,9 @@ def test_query_endpoint():
 def test_run_it():
     #"https://smart-api.info/ui/03c1982f2e3ba3710da20aa9c01a00f6/reasoner_api_query_post/"
     # https://automat.renci.org/drugcentral/1.2/query
-    trapi = {'message': {'query_graph': {'nodes': {'a': {'category': 'biolink:SmallMolecule'}, 'b': {'category': 'biolink:Disease'}}, 'edges': {'ab': {'subject': 'a', 'object': 'b', 'predicate': 'biolink:treats'}}}}}
-    #
-    response = requests.post("https://automat.renci.org/robokopkg/1.2/query", json=trapi)
-    print(response.status_code)
+    # trapi = {'message': {'query_graph': {'nodes': {'a': {'category': 'biolink:SmallMolecule'}, 'b': {'category': 'biolink:Disease'}}, 'edges': {'ab': {'subject': 'a', 'object': 'b', 'predicate': 'biolink:treats'}}}}}
+    # #
+    # response = requests.post("https://automat.renci.org/robokopkg/1.2/query", json=trapi)
+    # print(response.status_code)
     # pprint(response.json())
     treats.run_it()

@@ -149,11 +149,10 @@ def run_it():
     for ep in endpoints_to_query:
         tp = is_trapi(ep)
         if tp:
-            test_association = "https://smart-api.info/ui/" + ep.get("api_id") + "/query/"
             for association in ep.get('assocs'):
                 trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
                 if ep.get("api_id") == "03c1982f2e3ba3710da20aa9c01a00f6":
-                    submit_trapi(trapi, test_association)
+                    submit_trapi(trapi, tp)
 
                 # slow
                 # submit_trapi(trapi, test_association)
