@@ -61,7 +61,14 @@ def fetch_treats_examples():
 def is_trapi(ep: dict):
     response = requests.get(ep.get("ep"))
     if "x-trapi" in response.json().get("info"):
-        return response.json().get("servers").get("url")+"/query"
+        print("xtrapi!")
+        print(ep.get("ep"))
+        for server in response.json().get("servers"):
+            print(server.get("url"))
+            print(server.get(""))
+            if server.get("x-location") == 'production':
+                print(server.get("url")+"/query")
+                return server.get("url")+"/query"
     else:
         return None
 
