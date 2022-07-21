@@ -150,9 +150,9 @@ def run_it():
         tp = is_trapi(ep)
         if tp:
             for association in ep.get('assocs'):
-                trapi = make_trapi(association.get("subject"), association.get("object"), association.get("predicate"))
-                if ep.get("api_id") == "03c1982f2e3ba3710da20aa9c01a00f6":
+                if association.get("object") == 'Disease':
+                    trapi = make_trapi(association.get("subject"),
+                                       association.get("object"),
+                                       association.get("predicate"),
+                                       object_id="MONDO:0000001")
                     submit_trapi(trapi, tp)
-
-                # slow
-                # submit_trapi(trapi, test_association)
