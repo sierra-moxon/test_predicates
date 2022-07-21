@@ -16,7 +16,8 @@ def submit_trapi(trapi, api_endpoint):
         print(response.json())
         print(api_endpoint)
     else:
-        print(response.json())
+        for data in response.json():
+            print(data)
 
 
 def fetch_treats_examples():
