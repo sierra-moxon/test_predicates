@@ -65,8 +65,7 @@ def is_trapi(ep: dict):
         print(ep.get("ep"))
         for server in response.json().get("servers"):
             print(server.get("url"))
-            print(server.get(""))
-            if server.get("x-location") == 'production':
+            if server.get("x-maturity") == 'production':
                 print(server.get("url")+"/query")
                 return server.get("url")+"/query"
     else:
